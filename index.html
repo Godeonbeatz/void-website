@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VOID://TERMINAL_2026</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Syne:wght@400;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --neon-pink: #ff006e;
+            --neon-cyan: #00f5ff;
+            --neon-lime: #39ff14;
+            --neon-purple: #bc13fe;
+            --void-black: #050505;
+            --acid-yellow: #ffff00;
+        }
+
+        * {
+            cursor: none !important;
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            overflow-x: hidden;
+            background: var(--void-black);
+            font-family: 'Space Mono', monospace;
+            color: white;
+        }
+
+        /* Custom Cursor - Black Hole */
+        #cursor {
+            position: fixed;
+            width: 40px;
+            height: 40px;
+            border: 2px solid var(--neon-cyan);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 99999;
+            mix-blend-mode: difference;
+            transition: transform 0.1s;
+            box-shadow: 
+                0 0 20px var(--neon-cyan),
+                inset 0 0 20px rgba(0, 245, 255, 0.5);
+        }
+
+        #cursor::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 4px;
+            height: 4px;
+            background: white;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 10px white;
+        }
+
+        #cursor.trail {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            background: var(--neon-pink);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 99998;
+            opacity: 0.5;
+            filter: blur(4px);
+        }
+
+        /* Glitch Effects */
+        .glitch {
+            position: relative;
+            animation: glitch-skew 1s infinite;
+        }
+
+        .glitch::before,
+        .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .glitch::before {
+            left: 2px;
+            text-shadow: -2px 0 var(--neon-pink);
+            clip: rect(44px, 450px, 56px, 0);
+            animation: glitch-anim 5s infinite linear alternate-reverse;
+        }
+
+        .glitch::after {
+            left: -2px;
+            text-shadow: -2px 0 var(--neon-cyan);
+            clip: rect(44px, 450px, 56px, 0);
+            animation: glitch-anim2 5s infinite linear alternate-reverse;
+        }
+
+        @keyframes glitch-anim {
+            0% { clip: rect(12px, 9999px, 52px, 0); }
+            20% { clip: rect(65px, 9999px, 11px, 0); }
+            40% { clip: rect(26px, 9999px, 89px, 0); }
+            60% { clip: rect(78px, 9999px, 14px, 0); }
+            80% { clip: rect(33px, 9999px, 66px, 0); }
+            100% { clip: rect(55px, 9999px, 99px, 0); }
+        }
+
+        @keyframes glitch-anim2 {
+            0% { clip: rect(65px, 9999px, 99px, 0); }
+            20% { clip: rect(12px, 9999px, 52px, 0); }
+            40% { clip: rect(78px, 9999px, 33px, 0); }
+            60% { clip: rect(26px, 9999px, 88px, 0); }
+            80% { clip: rect(44px, 9999px, 14px, 0); }
+            100% { clip: rect(11px, 9999px, 66px, 0); }
+        }
+
+        @keyframes glitch-skew {
+            0% { transform: skew(0deg); }
+            10% { transform: skew(-2deg); }
+            20% { transform: skew(2deg); }
+            30% { transform: skew(0deg); }
+            100% { transform: skew(0deg); }
+        }
+
+        /* Living Typography */
+        .living-text {
+            font-family: 'Archivo Black', sans-serif;
+            background: linear-gradient(45deg, var(--neon-pink), var(--neon-cyan), var(--neon-lime), var(--neon-purple));
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradient-shift 3s ease infinite, breathe 4s ease-in-out infinite;
+            filter: drop-shadow(0 0 30px rgba(255, 0, 110, 0.5));
+        }
+
+        @keyframes gradient-shift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes breathe {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            25% { transform: scale(1.05) rotate(-1deg); }
+            50% { transform: scale(1) rotate(0deg); }
+            75% { transform: scale(1.05) rotate(1deg); }
+        }
+
+        /* Melting Effect */
+        .melting {
+            animation: melt 8s ease-in-out infinite;
+            filter: url(#goo);
+        }
+
+        @keyframes melt {
+            0%, 100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+            25% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
+            50% { border-radius: 50% 60% 30% 60% / 30% 60% 70% 40%; }
+            75% { border-radius: 60% 40% 60% 30% / 70% 30% 50% 60%; }
+        }
+
+        /* Scanlines */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                to bottom,
+                rgba(255,255,255,0),
+                rgba(255,255,255,0) 50%,
+                rgba(0,0,0,0.2) 50%,
+                rgba(0,0,0,0.2)
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 9999;
+            animation: scanline-move 10s linear infinite;
+        }
+
+        @keyframes scanline-move {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(10px); }
+        }
+
+        /* Noise Overlay */
+        .noise {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9998;
+            opacity: 0.05;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        /* 3D Card Tilt */
+        .tilt-card {
+            transform-style: preserve-3d;
+            transition: transform 0.1s;
+        }
+
+        .tilt-content {
+            transform: translateZ(50px);
+        }
+
+        /* Marquee */
+        .marquee-container {
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .marquee-content {
+            display: inline-block;
+            animation: marquee 20s linear infinite;
+        }
+
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* Pulse Animation */
+        .pulse-glow {
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px var(--neon-pink), 0 0 40px var(--neon-purple); }
+            50% { box-shadow: 0 0 40px var(--neon-cyan), 0 0 80px var(--neon-lime); }
+        }
+
+        /* Distortion on Hover */
+        .distort-hover {
+            transition: all 0.3s;
+        }
+
+        .distort-hover:hover {
+            transform: scale(1.1) skew(5deg, -5deg);
+            filter: hue-rotate(90deg) contrast(1.5);
+        }
+
+        /* Infinite Scroll Text */
+        .scroll-text {
+            animation: scroll-up 10s linear infinite;
+        }
+
+        @keyframes scroll-up {
+            0% { transform: translateY(100%); }
+            100% { transform: translateY(-100%); }
+        }
+
+        /* Floating Elements */
+        .float-1 { animation: float 6s ease-in-out infinite; }
+        .float-2 { animation: float 8s ease-in-out infinite 1s; }
+        .float-3 { animation: float 7s ease-in-out infinite 2s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+
+        /* Chromatic Aberration */
+        .chromatic {
+            position: relative;
+        }
+
+        .chromatic::before,
+        .chromatic::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: inherit;
+            mix-blend-mode: screen;
+            pointer-events: none;
+        }
+
+        .chromatic::before {
+            transform: translate(-3px, 0);
+            filter: url('#red-channel');
+        }
+
+        .chromatic::after {
+            transform: translate(3px, 0);
+            filter: url('#blue-channel');
+        }
+
+        /* WebGL Canvas */
+        #fractal-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 15px;
+            background: var(--void-black);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(var(--neon-pink), var(--neon-cyan));
+            border-radius: 10px;
+            border: 2px solid var(--void-black);
+        }
+
+        /* Selection */
+        ::selection {
+            background: var(--neon-lime);
+            color: var(--void-black);
+        }
+
+        /* Utility Classes */
+        .text-stroke {
+            -webkit-text-stroke: 2px white;
+            color: transparent;
+        }
+
+        .border-chaos {
+            border: 3px solid;
+            border-image: linear-gradient(45deg, var(--neon-pink), var(--neon-cyan), var(--neon-lime)) 1;
+        }
+
+        .clip-inset {
+            clip-path: polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%);
+        }
+
+        .clip-diagonal {
+            clip-path: polygon(0 0, 100% 0, 80% 100%, 0% 100%);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- SVG Filters -->
+    <svg style="position: absolute; width: 0; height: 0;">
+        <defs>
+            <filter id="goo">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
+                <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -9" result="goo" />
+                <feComposite in="SourceGraphic" in2="goo" operator="atop"/>
+            </filter>
+            <filter id="red-channel">
+                <feColorMatrix type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0"/>
+            </filter>
+            <filter id="blue-channel">
+                <feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0"/>
+            </filter>
+        </defs>
+    </svg>
+
+    <!-- Custom Cursor -->
+    <div id="cursor"></div>
+    <div id="cursor-trail"></div>
+
+    <!-- Background Effects -->
+    <div class="scanlines"></div>
+    <div class="noise"></div>
+    <canvas id="fractal-canvas"></canvas>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 mix-blend-difference p-6 flex justify-between items-center pointer-events-none">
+        <div class="text-2xl font-bold tracking-tighter glitch" data-text="VOID://PROTOCOL">
+            VOID://PROTOCOL
+        </div>
+        <div class="flex gap-6 text-sm font-bold">
+            <span class="hover:text-[#ff006e] transition-colors pointer-events-auto cursor-none">[ABYSS]</span>
+            <span class="hover:text-[#00f5ff] transition-colors pointer-events-auto cursor-none">[CHAOS]</span>
+            <span class="hover:text-[#39ff14] transition-colors pointer-events-auto cursor-none">[EXIT?]</span>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative min-h-screen flex items-center justify-center overflow-hidden">
+        <div class="absolute inset-0 flex items-center justify-center opacity-20">
+            <div class="w-[800px] h-[800px] melting bg-gradient-to-br from-[#ff006e] via-[#bc13fe] to-[#00f5ff] blur-3xl"></div>
+        </div>
+
+        <div class="relative z-10 text-center px-4 max-w-7xl mx-auto">
+            <h1 class="living-text text-[12vw] leading-none font-black mb-8 select-none">
+                REALITY<br>
+                <span class="glitch" data-text="ERROR">ERROR</span>
+            </h1>
+            
+            <div class="marquee-container bg-[#39ff14] text-black py-2 rotate-1 border-y-4 border-black">
+                <div class="marquee-content font-bold text-xl">
+                    WARNING: VISUAL OVERLOAD DETECTED /// SYSTEM BREACH IMMINENT /// REALITY UNSTABLE /// PROCEED AT OWN RISK /// 
+                    WARNING: VISUAL OVERLOAD DETECTED /// SYSTEM BREACH IMMINENT /// REALITY UNSTABLE /// PROCEED AT OWN RISK ///
+                </div>
+            </div>
+
+            <p class="mt-8 text-xl md:text-2xl max-w-2xl mx-auto leading-relaxed font-mono border-l-4 border-[#ff006e] pl-6 text-left">
+                You have entered the post-human web. 
+                <span class="text-[#00f5ff]">Typography is alive.</span> 
+                <span class="text-[#ff006e]">Borders are suggestions.</span> 
+                <span class="text-[#39ff14]">Chaos is harmony.</span>
+            </p>
+        </div>
+
+        <!-- Floating Debris -->
+        <div class="absolute top-20 left-10 w-32 h-32 border-4 border-[#ff006e] float-1 distort-hover rotate-12"></div>
+        <div class="absolute bottom-32 right-20 w-24 h-24 bg-[#00f5ff] float-2 distort-hover clip-inset"></div>
+        <div class="absolute top-1/2 right-10 text-6xl font-black text-stroke float-3 select-none">2026</div>
+    </section>
+
+    <!-- Chaos Grid Section -->
+    <section class="relative py-32 px-4 overflow-hidden">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+            
+            <!-- Card 1: Melting Interface -->
+            <div class="tilt-card group relative h-[500px] bg-gradient-to-br from-purple-900 to-black border-2 border-[#bc13fe] p-8 overflow-hidden">
+                <div class="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23bc13fe\' fill-opacity=\'0.1\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-30"></div>
+                <div class="tilt-content relative z-10">
+                    <h3 class="text-4xl font-black mb-4 text-[#bc13fe] glitch" data-text="MELT">MELT</h3>
+                    <div class="w-full h-64 bg-gradient-to-br from-[#ff006e] to-[#bc13fe] melting mb-4"></div>
+                    <p class="font-mono text-sm leading-relaxed">
+                        Interfaces losing cohesion. 
+                        <span class="bg-[#ffff00] text-black px-1">Liquid metal aesthetics</span> 
+                        consuming rigid grids.
+                    </p>
+                </div>
+                <div class="absolute -bottom-10 -right-10 text-[150px] font-black opacity-10 select-none">01</div>
+            </div>
+
+            <!-- Card 2: Glitch Reality -->
+            <div class="tilt-card group relative h-[500px] bg-black border-2 border-[#00f5ff] p-8 mt-12 md:mt-0">
+                <div class="absolute inset-0 overflow-hidden">
+                    <div class="absolute inset-0 bg-[#00f5ff] opacity-10 animate-pulse"></div>
+                    <div class="absolute top-0 left-0 w-full h-1 bg-[#00f5ff] shadow-[0_0_20px_#00f5ff]"></div>
+                </div>
+                <div class="tilt-content relative z-10">
+                    <h3 class="text-4xl font-black mb-4 text-[#00f5ff] glitch" data-text="BREACH">BREACH</h3>
+                    <div class="space-y-4">
+                        <div class="h-4 bg-[#00f5ff] w-3/4 glitch"></div>
+                        <div class="h-4 bg-[#00f5ff] w-1/2 glitch" style="animation-delay: 0.2s"></div>
+                        <div class="h-4 bg-[#00f5ff] w-5/6 glitch" style="animation-delay: 0.4s"></div>
+                        <div class="h-4 bg-[#00f5ff] w-2/3 glitch" style="animation-delay: 0.6s"></div>
+                    </div>
+                    <p class="font-mono text-sm mt-6 leading-relaxed text-[#00f5ff]">
+                        Data corruption as art form. 
+                        <span class="border-b-2 border-[#00f5ff]">Beautiful errors</span> 
+                        in the system.
+                    </p>
+                </div>
+                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-9xl font-black opacity-5 select-none whitespace-nowrap">
+                    SYSTEM FAILURE
+                </div>
+            </div>
+
+            <!-- Card 3: Acid Growth -->
+            <div class="tilt-card group relative h-[500px] bg-[#39ff14] text-black border-4 border-black p-8 transform rotate-1 hover:rotate-0 transition-transform duration-500">
+                <div class="tilt-content">
+                    <h3 class="text-4xl font-black mb-4 glitch text-black" data-text="MUTATE">MUTATE</h3>
+                    <div class="relative w-full h-48 mb-4 overflow-hidden border-2 border-black">
+                        <div class="absolute inset-0 bg-black"></div>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="w-32 h-32 bg-[#ff006e] rounded-full animate-ping"></div>
+                            <div class="absolute w-24 h-24 bg-[#39ff14] rounded-full animate-pulse"></div>
+                        </div>
+                    </div>
+                    <p class="font-mono text-sm leading-relaxed font-bold">
+                        Organic algorithms. 
+                        <span class="bg-black text-[#39ff14] px-1">Living code</span> 
+                        breathing through the screen.
+                    </p>
+                </div>
+                <div class="absolute -top-4 -left-4 w-8 h-8 bg-black"></div>
+                <div class="absolute -bottom-4 -right-4 w-8 h-8 bg-black"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Typography Organisms Section -->
+    <section class="relative py-32 overflow-hidden bg-[#050505]">
+        <div class="max-w-full">
+            <div class="flex flex-col gap-8">
+                <div class="text-[15vw] font-black leading-none whitespace-nowrap animate-[marquee_30s_linear_infinite] text-transparent bg-clip-text bg-gradient-to-r from-[#ff006e] via-[#bc13fe] to-[#00f5ff] font-['Archivo_Black']">
+                    CRAWLING TEXT LIVING LETTERS MUTATING FORMS
+                </div>
+                <div class="text-[15vw] font-black leading-none whitespace-nowrap animate-[marquee_25s_linear_infinite_reverse] text-stroke font-['Archivo_Black']">
+                    EATING SPACE CONSUMING MARGINS BREACHING CONTAINMENT
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Void -->
+    <section class="relative min-h-screen flex items-center justify-center p-4">
+        <div class="max-w-6xl w-full grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <div class="space-y-8">
+                <h2 class="text-6xl md:text-8xl font-black leading-none">
+                    <span class="block text-[#ff006e] glitch" data-text="ENTER">ENTER</span>
+                    <span class="block text-[#00f5ff] ml-12">THE</span>
+                    <span class="block text-[#39ff14] glitch" data-text="VOID">VOID</span>
+                </h2>
+                
+                <div class="space-y-4 font-mono text-lg">
+                    <p class="border-l-4 border-[#ff006e] pl-4">
+                        Every pixel is screaming. Every border is bleeding. 
+                        This is not a website. This is a 
+                        <span class="text-[#ffff00] font-bold">visual exorcism</span>.
+                    </p>
+                    <p class="border-l-4 border-[#00f5ff] pl-4 ml-8">
+                        2026 post-human design language. 
+                        No grids. No rules. Only 
+                        <span class="bg-[#ff006e] text-black px-2">sensation</span>.
+                    </p>
+                </div>
+
+                <button class="group relative px-12 py-6 bg-transparent border-4 border-[#bc13fe] text-[#bc13fe] font-black text-xl uppercase tracking-widest hover:bg-[#bc13fe] hover:text-black transition-all duration-300 pulse-glow">
+                    <span class="relative z-10">Initiate Sequence</span>
+                    <div class="absolute inset-0 bg-[#bc13fe] transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
+                </button>
+            </div>
+
+            <div class="relative h-[600px] w-full">
+                <div class="absolute inset-0 border-4 border-[#ff006e] clip-diagonal bg-gradient-to-br from-[#ff006e]/20 to-transparent"></div>
+                <div class="absolute top-10 right-10 w-64 h-64 border-4 border-[#00f5ff] rotate-45 animate-[spin_20s_linear_infinite]"></div>
+                <div class="absolute bottom-20 left-20 w-48 h-48 bg-[#39ff14] rounded-full mix-blend-difference animate-pulse"></div>
+                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-9xl font-black text-white/10 select-none">
+                    404
+                </div>
+                
+                <!-- Recursive Frames -->
+                <div class="absolute inset-8 border-2 border-white/20 animate-pulse"></div>
+                <div class="absolute inset-16 border-2 border-white/40 animate-pulse" style="animation-delay: 0.2s"></div>
+                <div class="absolute inset-24 border-2 border-white/60 animate-pulse" style="animation-delay: 0.4s"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer Chaos -->
+    <footer class="relative py-24 bg-black border-t-8 border-[#ff006e]">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-16">
+                <div class="col-span-2">
+                    <h4 class="text-4xl font-black mb-4 text-[#ff006e] glitch" data-text="REALITY_HAS_ENDED">REALITY_HAS_ENDED</h4>
+                    <p class="font-mono text-gray-400 max-w-md">
+                        This website is a transmission from the other side of design. 
+                        If you can read this, the experiment was successful.
+                    </p>
+                </div>
+                <div>
+                    <h5 class="text-[#00f5ff] font-bold mb-4 text-xl">[SYSTEMS]</h5>
+                    <ul class="space-y-2 font-mono text-sm">
+                        <li class="hover:text-[#ff006e] cursor-none">Fractal_Render</li>
+                        <li class="hover:text-[#00f5ff] cursor-none">Glitch_Protocol</li>
+                        <li class="hover:text-[#39ff14] cursor-none">Acid_Graphics</li>
+                        <li class="hover:text-[#bc13fe] cursor-none">Void_Engine</li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="text-[#39ff14] font-bold mb-4 text-xl">[STATUS]</h5>
+                    <div class="font-mono text-xs space-y-1 text-gray-500">
+                        <p>CPU: OVERCLOCKED</p>
+                        <p>GPU: MELTING</p>
+                        <p>RAM: SCREAMING</p>
+                        <p>REALITY: UNSTABLE</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="text-6xl font-black text-white/5 select-none">VOID://2026</div>
+                <div class="font-mono text-xs text-gray-600">
+                    NO RIGHTS RESERVED • REALITY IS A CONSTRUCT • BREAK THE RULES
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Custom Cursor with Black Hole Effect
+        const cursor = document.getElementById('cursor');
+        const cursorTrail = document.getElementById('cursor-trail');
+        let mouseX = 0, mouseY = 0;
+        let cursorX = 0, cursorY = 0;
+        let trailX = 0, trailY = 0;
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        function animateCursor() {
+            // Smooth cursor follow
+            cursorX += (mouseX - cursorX) * 0.1;
+            cursorY += (mouseY - cursorY) * 0.1;
+            trailX += (mouseX - trailX) * 0.05;
+            trailY += (mouseY - trailY) * 0.05;
+
+            cursor.style.left = cursorX - 20 + 'px';
+            cursor.style.top = cursorY - 20 + 'px';
+            
+            // Create trail elements
+            if (Math.random() > 0.8) {
+                createTrail(trailX, trailY);
+            }
+
+            requestAnimationFrame(animateCursor);
+        }
+
+        function createTrail(x, y) {
+            const trail = document.createElement('div');
+            trail.className = 'trail';
+            trail.style.position = 'fixed';
+            trail.style.left = x + 'px';
+            trail.style.top = y + 'px';
+            trail.style.width = '10px';
+            trail.style.height = '10px';
+            trail.style.background = `hsl(${Math.random() * 360}, 100%, 50%)`;
+            trail.style.borderRadius = '50%';
+            trail.style.pointerEvents = 'none';
+            trail.style.zIndex = '99997';
+            trail.style.transform = 'translate(-50%, -50%)';
+            document.body.appendChild(trail);
+
+            let scale = 1;
+            let opacity = 0.5;
+            
+            function animateTrail() {
+                scale *= 0.95;
+                opacity -= 0.02;
+                trail.style.transform = `translate(-50%, -50%) scale(${scale})`;
+                trail.style.opacity = opacity;
+                
+                if (opacity > 0) {
+                    requestAnimationFrame(animateTrail);
+                } else {
+                    trail.remove();
+                }
+            }
+            animateTrail();
+        }
+
+        animateCursor();
+
+        // 3D Tilt Effect for Cards
+        document.querySelectorAll('.tilt-card').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                const rotateX = (y - centerY) / 10;
+                const rotateY = (centerX - x) / 10;
+                
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0)';
+            });
+        });
+
+        // WebGL Fractal Background
+        const canvas = document.getElementById('fractal-canvas');
+        const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 2;
+
+        // Create fractal-like geometry
+        const geometry = new THREE.IcosahedronGeometry(1, 4);
+        const material = new THREE.ShaderMaterial({
+            uniforms: {
+                time: { value: 0 },
+                mouse: { value: new THREE.Vector2(0, 0) },
+                color1: { value: new THREE.Color(0xff006e) },
+                color2: { value: new THREE.Color(0x00f5ff) },
+                color3: { value: new THREE.Color(0xbc13fe) }
+            },
+            vertexShader: `
+                uniform float time;
+                uniform vec2 mouse;
+                varying vec2 vUv;
+                varying float vDistortion;
+                
+                void main() {
+                    vUv = uv;
+                    vec3 pos = position;
+                    
+                    float distortion = sin(pos.x * 5.0 + time) * 0.1;
+                    distortion += sin(pos.y * 5.0 + time * 0.5) * 0.1;
+                    distortion += sin(pos.z * 5.0 + time * 0.3) * 0.1;
+                    
+                    pos += normal * distortion;
+                    vDistortion = distortion;
+                    
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+                }
+            `,
+            fragmentShader: `
+                uniform float time;
+                uniform vec3 color1;
+                uniform vec3 color2;
+                uniform vec3 color3;
+                varying vec2 vUv;
+                varying float vDistortion;
+                
+                void main() {
+                    float noise = fract(sin(dot(vUv, vec2(12.9898, 78.233))) * 43758.5453);
+                    
+                    vec3 color = mix(color1, color2, vUv.x + sin(time) * 0.5);
+                    color = mix(color, color3, vUv.y + cos(time) * 0.5);
+                    color += vDistortion * 2.0;
+                    
+                    gl_FragColor = vec4(color, 0.3);
+                }
+            `,
+            transparent: true,
+            wireframe: true
+        });
+
+        const sphere = new THREE.Mesh(geometry, material);
+        scene.add(sphere);
+
+        // Add particles
+        const particlesGeometry = new THREE.BufferGeometry();
+        const particlesCount = 2000;
+        const posArray = new Float32Array(particlesCount * 3);
+
+        for(let i = 0; i < particlesCount * 3; i++) {
+            posArray[i] = (Math.random() - 0.5) * 10;
+        }
+
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        const particlesMaterial = new THREE.PointsMaterial({
+            size: 0.02,
+            color: 0xffffff,
+            transparent: true,
+            opacity: 0.8,
+            blending: THREE.AdditiveBlending
+        });
+
+        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+        scene.add(particlesMesh);
+
+        // Mouse interaction for 3D
+        let targetX = 0;
+        let targetY = 0;
+
+        document.addEventListener('mousemove', (e) => {
+            targetX = (e.clientX / window.innerWidth) * 2 - 1;
+            targetY = -(e.clientY / window.innerHeight) * 2 + 1;
+        });
+
+        // Animation loop
+        const clock = new THREE.Clock();
+
+        function animate() {
+            const elapsedTime = clock.getElapsedTime();
+            
+            material.uniforms.time.value = elapsedTime;
+            material.uniforms.mouse.value.x += (targetX - material.uniforms.mouse.value.x) * 0.05;
+            material.uniforms.mouse.value.y += (targetY - material.uniforms.mouse.value.y) * 0.05;
+            
+            sphere.rotation.x = elapsedTime * 0.1;
+            sphere.rotation.y = elapsedTime * 0.15;
+            
+            particlesMesh.rotation.x = elapsedTime * 0.05;
+            particlesMesh.rotation.y = elapsedTime * 0.08;
+            
+            // Camera parallax
+            camera.position.x += (targetX * 0.5 - camera.position.x) * 0.05;
+            camera.position.y += (targetY * 0.5 - camera.position.y) * 0.05;
+            camera.lookAt(scene.position);
+            
+            renderer.render(scene, camera);
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+
+        // Resize handler
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Random glitch triggers
+        setInterval(() => {
+            const elements = document.querySelectorAll('.glitch');
+            const randomEl = elements[Math.floor(Math.random() * elements.length)];
+            randomEl.style.animation = 'none';
+            setTimeout(() => {
+                randomEl.style.animation = '';
+            }, 100);
+        }, 3000);
+
+        // Scroll velocity effect
+        let lastScroll = 0;
+        let scrollVelocity = 0;
+
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.pageYOffset;
+            scrollVelocity = Math.abs(currentScroll - lastScroll);
+            lastScroll = currentScroll;
+            
+            document.body.style.transform = `skewY(${scrollVelocity * 0.01}deg)`;
+            setTimeout(() => {
+                document.body.style.transform = 'skewY(0deg)';
+            }, 100);
+        });
+
+        // Text scramble effect on hover
+        class TextScramble {
+            constructor(el) {
+                this.el = el;
+                this.chars = '!<>-_\\/[]{}—=+*^?#________';
+                this.update = this.update.bind(this);
+            }
+            
+            setText(newText) {
+                const oldText = this.el.innerText;
+                const length = Math.max(oldText.length, newText.length);
+                const promise = new Promise((resolve) => this.resolve = resolve);
+                this.queue = [];
+                for (let i = 0; i < length; i++) {
+                    const from = oldText[i] || '';
+                    const to = newText[i] || '';
+                    const start = Math.floor(Math.random() * 40);
+                    const end = start + Math.floor(Math.random() * 40);
+                    this.queue.push({ from, to, start, end });
+                }
+                cancelAnimationFrame(this.frameRequest);
+                this.frame = 0;
+                this.update();
+                return promise;
+            }
+            
+            update() {
+                let output = '';
+                let complete = 0;
+                for (let i = 0, n = this.queue.length; i < n; i++) {
+                    let { from, to, start, end, char } = this.queue[i];
+                    if (this.frame >= end) {
+                        complete++;
+                        output += to;
+                    } else if (this.frame >= start) {
+                        if (!char || Math.random() < 0.28) {
+                            char = this.randomChar();
+                            this.queue[i].char = char;
+                        }
+                        output += `<span class="text-[#ff006e]">${char}</span>`;
+                    } else {
+                        output += from;
+                    }
+                }
+                this.el.innerHTML = output;
+                if (complete === this.queue.length) {
+                    this.resolve();
+                } else {
+                    this.frameRequest = requestAnimationFrame(this.update);
+                    this.frame++;
+                }
+            }
+            
+            randomChar() {
+                return this.chars[Math.floor(Math.random() * this.chars.length)];
+            }
+        }
+
+        // Apply scramble to nav items
+        document.querySelectorAll('nav span').forEach(el => {
+            const fx = new TextScramble(el);
+            const originalText = el.innerText;
+            el.addEventListener('mouseenter', () => {
+                fx.setText(originalText);
+            });
+        });
+
+        // Audio context for hover sounds (optional - creates buzz)
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        const audioCtx = new AudioContext();
+
+        function playHoverSound() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            oscillator.frequency.value = 100 + Math.random() * 200;
+            oscillator.type = 'sawtooth';
+            
+            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+            
+            oscillator.start(audioCtx.currentTime);
+            oscillator.stop(audioCtx.currentTime + 0.1);
+        }
+
+        document.querySelectorAll('button, .tilt-card').forEach(el => {
+            el.addEventListener('mouseenter', playHoverSound);
+        });
+    </script>
+</body>
+</html>
